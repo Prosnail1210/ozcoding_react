@@ -1,0 +1,9 @@
+*{
+  box-sizing: border-box;
+}
+.flex{
+  display: flex;
+}
+.main{
+  padding: 4rem 0 5rem;
+}
