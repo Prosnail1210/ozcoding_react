@@ -1,0 +1,15 @@
+.menu_items{
+    width: 100%;
+    padding: 15px 20px 0;
+
+}
+span{
+    float: right;
+  }
+.delete{
+    border: 0;
+    background-color: white;
+}
+.menuBox{
+    padding-top: 3px;
+}
