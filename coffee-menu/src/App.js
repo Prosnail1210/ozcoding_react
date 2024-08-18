@@ -17,6 +17,8 @@ function App() {
   const [menu,setM] = useState("coffee")
   const [menu_name,setName] = useState("")
   const [menu_price,setPrice] = useState("")
+  const [edit, setEdit] = useState(false)
+  const [id,setId]=useState()
 
   const handleMenuState = (e) =>{
     const coffee = document.getElementById('coffee')
@@ -29,6 +31,14 @@ function App() {
 
     setMenu(e.target.value)
 
+  }
+  const allDelete=()=>{
+    if(menu_state==='coffee')
+      setItem(menu_item_list.filter(v=>v.menu!=='coffee'))
+    else if(menu_state==='non-coffee')
+      setItem(menu_item_list.filter(v=>v.menu!=='non-coffee'))
+    else
+      setItem(menu_item_list.filter(v=>v.menu!=='dessert'))
   }
   const handleItemAdd = () => {
     if(menu_name.length>0&&menu_price>0){
@@ -56,6 +66,22 @@ function App() {
     if(e.code==='Enter')
       handleItemAdd()
   }
+  const handleItemEdit=(id)=>{
+    const editItem = menu_item_list.find(v=>v.id === id)
+    setEdit(true)
+    setId(id)
+    setM(editItem.menu)
+    setName(editItem.name)
+    setPrice(editItem.price)
+  }
+  const handleItemEditClick=()=>{
+    const new_menu_iem_lsit = menu_item_list.map(v=>v.id === id ? {id:v.id,menu:menu,name:menu_name,price:menu_price}:v)
+    setItem(new_menu_iem_lsit)
+    setName('')
+    setPrice('')
+    setM('coffee')
+    setEdit(false)
+  }
   return (
     <div className='container' id='container'>
       <div className='coffee-store'>
@@ -65,11 +91,13 @@ function App() {
         <Nav menu_state={menu_state} handleMenuState={handleMenuState}/>
         <div className='main'>
             <Menu menu_item_list={menu_item_list} menu_state={menu_state} 
-            handleItemDelete={handleItemDelete}/>
+            handleItemDelete={handleItemDelete} handleItemEdit={handleItemEdit}
+            allDelete={allDelete}/>
         </div>
         <Footer handleItemAdd={handleItemAdd} menu_name={menu_name} menu_price={menu_price}
          handleItemName={handleItemName} handleItemPrice={handleItemPrice}
-         handleMenu={handleMenu} inputEnter={inputEnter}/>
+         handleMenu={handleMenu} inputEnter={inputEnter} handleItemEditClick={handleItemEditClick}
+         edit ={edit} menu={menu}/>
       </div>
     </div>
   );
