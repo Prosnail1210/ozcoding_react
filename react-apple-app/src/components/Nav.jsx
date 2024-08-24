@@ -1,16 +1,52 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import{getAuth,signInWithPopup,GoogleAuthProvider, onAuthStateChanged, signOut} from 'firebase/auth'
+import app from '../firebase'
 
 const Nav = () => {
 
   const [searchValue,setSearchVlue] = useState('')
-
+  const initialUserData = localStorage.getItem('userData')? JSON.parse(localStorage.getItem('userData')):{}
+  const [userData, setUserData] = useState(initialUserData)
   const navigate = useNavigate()
-
+  const {pathname}=useLocation()
   const handleChange = (e)=>{
     setSearchVlue(e.target.value)
     navigate(`/search?q=${e.target.value}`)
+  }
+  const auth = getAuth(app)
+  const provider = new GoogleAuthProvider()
+  const handleAuth=()=>{
+    signInWithPopup(auth,provider)
+    .then((result)=>{
+      setUserData(result.user)
+      localStorage.setItem('userData',JSON.stringify(result.user))
+    })
+    .catch((error)=>{
+      console.log(error)
+    })
+  }
+  useEffect(()=>{
+    onAuthStateChanged(auth,(user)=>{
+      if(!user){
+        navigate('/')
+      }else if(user && pathname==='/'){
+        navigate('/main')
+      }
+    })
+    return()=>{
+
+    }
+  },[auth,navigate,pathname])
+
+  const handleLogOut = () =>{
+    signOut(auth).then(()=>{
+      setUserData({})
+      localStorage.removeItem('userData')
+    }).catch((error)=>{
+      console.log(error)
+    })
   }
 
   return (
@@ -18,17 +54,63 @@ const Nav = () => {
       <Logo>
           <img alt="logo" src='/images/apple-logo.png' onClick={()=>window.location.href='/main'}/>
       </Logo>
-
-    <Input type='text' className='nav_input'
-    value={searchValue}
-    onChange={handleChange}
-    placeholder='영화를 검색해주세요.'/>
-
-    <Login>로그인</Login>
+    {pathname==="/"?(
+      <Login
+      onClick={handleAuth}>로그인</Login>
+    ):(
+      <Input type='text' className='nav_input'
+      value={searchValue}
+      onChange={handleChange}
+      placeholder='영화를 검색해주세요.'/>
+    )
+  }
+  {pathname ==='/'?null:
+  <SignOut>
+    <UserImg src={userData.photoURL} alt={userData.displayName}/>
+    <DropDown>
+      <span onClick={handleLogOut}>
+        Sign Out
+      </span>
+    </DropDown>
+  </SignOut>
+  }
 
     </NavWrapper>
   )
 }
+const UserImg = styled.img`
+border-radius:50%;
+width:100%;
+height:100%;`
+
+const DropDown=styled.div`
+  postion:absolute;
+  top:48px;
+  right:0;
+  background: rgb(19,19,19);
+  border:1px solid grba(151,151,151,0.34);
+  border-radius:4px;
+  box-shadow:rgb(0 0 0 /50%) 0px 0px 18px 0px
+  padding: 10px;
+  font-size:14px;
+  letter-spacing:3px;
+  width:100px;
+  opacity:0;
+`
+const SignOut =styled.div`
+position:reladtive;
+height:48px;
+width:48px;
+dispaly:flex;
+cursor:pointer;
+align-items:center;
+justify-content:center;
+&:hover{
+${DropDown}{
+  opacity:1;
+  transition-duration:1s;
+  }
+}`
 const Input= styled.input`
   position: fixed;
   left: 50%;
