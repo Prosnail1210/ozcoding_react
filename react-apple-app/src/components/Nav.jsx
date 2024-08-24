@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useAsyncError, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import{getAuth,signInWithPopup,GoogleAuthProvider, onAuthStateChanged, signOut} from 'firebase/auth'
+import{getAuth,signInWithPopup,GoogleAuthProvider, onAuthStateChanged, signOut, linkWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword} from 'firebase/auth'
 import app from '../firebase'
+import useDebounce from '../hooks/useDebounce'
 
 const Nav = () => {
 
@@ -17,6 +18,7 @@ const Nav = () => {
   }
   const auth = getAuth(app)
   const provider = new GoogleAuthProvider()
+
   const handleAuth=()=>{
     signInWithPopup(auth,provider)
     .then((result)=>{
@@ -48,15 +50,47 @@ const Nav = () => {
       console.log(error)
     })
   }
-
+  const [ID, setID] = useState('')
+  const [PW, setPW] = useState('')
+  const handleIDPWAuth=()=>{
+    signInWithEmailAndPassword(auth,ID,PW)
+    .then(result=>{
+      setUserData(result.user)
+      localStorage.setItem('userData',JSON.stringify(result.user))
+    })
+    .catch(e=>{console.log('로그인 실패',e)})
+  }
+  const create= async()=>{
+    const result = await createUserWithEmailAndPassword(auth,ID,PW)
+    if(result){
+      setUserData(result.user)
+      localStorage.setItem('userData',JSON.stringify(result.user))
+    }
+  }
   return (
     <NavWrapper >
       <Logo>
           <img alt="logo" src='/images/apple-logo.png' onClick={()=>window.location.href='/main'}/>
       </Logo>
     {pathname==="/"?(
-      <Login
-      onClick={handleAuth}>로그인</Login>
+      <>
+      <Login>로그인
+      <LoginWindow>
+        <form style={{display:'flex', flexWrap:'wrap',justifyContent:'center',alignItems:'center',flexDirection:"column"}}>
+        <label htmlFor='id' style={{width:'10%'}}>ID: </label>
+        <input id='id' style={{width:'80%'}} value={ID} type='text'
+        onChange={e=>setID(e.target.value)}/>
+        <label htmlFor='pw' style={{width:'10%'}}>PW: </label>
+        <input id='pw' style={{width:'80%'}} value={PW} type='password'
+        onChange={e=>setPW(e.target.value)}/>
+        <input type='button' value='회원가입' onClick={create}/>
+        <input type='submit' value='로그인' onClick={(e)=>{e.preventDefault(); handleIDPWAuth()}}/>
+        </form>
+        <div style={{border:'3px solid black', borderRadius:'50%', textAlign:'center', width:'50px',height:'50px', cursor:'pointer'}}
+        onClick={handleAuth}>G</div>
+      </LoginWindow>
+      </Login>
+      </>
     ):(
       <Input type='text' className='nav_input'
       value={searchValue}
@@ -159,6 +193,26 @@ const Logo = styled.a`
   img {
     display:block;
     width: 100%;
+  }
+`
+const LoginWindow = styled.div`
+  position:absolute;
+  top: 80px;
+  right: 40px;
+  border: 3px solid black;
+  width:300px;
+  height: 400px;
+  background-color:gray;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  flex-direction:column;
+
+  label{
+    margin-padding:10px;
+    font-size:16px;
+    letter-spacing:2px;
   }
 `
 
