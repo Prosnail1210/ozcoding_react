@@ -155,6 +155,26 @@ const Input= styled.input`
   padding: 5px;
   border:1px solid lightgray;
 `
+const LoginWindow = styled.div`
+  position:absolute;
+  top: 50px;
+  right: 40px;
+  border: 3px solid black;
+  width:300px;
+  height: 400px;
+  background-color:gray;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  flex-direction:column;
+  visibility:hidden;
+  label{
+    margin-padding:10px;
+    font-size:16px;
+    letter-spacing:2px;
+  }
+`
 const Login = styled.a`
   background-color: rgba(0,0,0,0,0.6);
   padding:8px 16px;
@@ -162,12 +182,14 @@ const Login = styled.a`
   letter-spacing:1.5px;
   border:1px solid #f9f9f9;
   border-raduis: 4px;
-  transition:all 0.2s ease
-
+  transition:all 0.2s ease;
+  cursor:pointer;
   &:hover{
     background-color: #f9f9f9;
     color:#000;
     border-color: transparent;
+    ${LoginWindow}{
+    visibility:visible;}
   }
 `
 const NavWrapper = styled.nav` 
@@ -193,26 +215,6 @@ const Logo = styled.a`
   img {
     display:block;
     width: 100%;
-  }
-`
-const LoginWindow = styled.div`
-  position:absolute;
-  top: 80px;
-  right: 40px;
-  border: 3px solid black;
-  width:300px;
-  height: 400px;
-  background-color:gray;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  flex-direction:column;
-
-  label{
-    margin-padding:10px;
-    font-size:16px;
-    letter-spacing:2px;
   }
 `
 
